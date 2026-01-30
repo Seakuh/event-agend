@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Allgäu Event Suche</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .search-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo h1 {
+            font-size: 3em;
+            background: linear-gradient(90deg, #7cb342, #aed581);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .logo p {
+            color: #888;
+            margin-top: 5px;
+        }
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            outline: none;
+            transition: background 0.3s;
+        }
+        .search-box input::placeholder { color: #888; }
+        .search-box input:focus { background: rgba(255,255,255,0.15); }
+        .search-box button {
+            padding: 15px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 30px;
+            background: #7cb342;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .search-box button:hover { background: #689f38; }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            background: transparent;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #7cb342;
+            border-color: #7cb342;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .results-count { color: #888; }
+
+        .event-list { display: flex; flex-direction: column; gap: 15px; }
+
+        .event-card {
+            display: flex;
+            gap: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .event-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+        .event-image {
+            width: 120px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .event-content { flex: 1; }
+        .event-date {
+            display: inline-block;
+            background: #7cb342;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .event-title {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        .event-location {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+        .event-description {
+            color: #aaa;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .event-tags {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .tag {
+            padding: 3px 10px;
+            background: rgba(124, 179, 66, 0.2);
+            border-radius: 10px;
+            font-size: 11px;
+            color: #aed581;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        @media (max-width: 600px) {
+            .event-card { flex-direction: column; }
+            .event-image { width: 100%; height: 150px; }
+            .search-box { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <div class="logo">
+            <h1>Allgäu Events</h1>
+            <p>Finde Events die zu dir passen</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Wandern, Tech, Networking, Konzert..." autofocus>
+            <button onclick="search()">Suchen</button>
+        </div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Alle</button>
+            <button class="filter-btn" data-filter="wandern">Wandern & Natur</button>
+            <button class="filter-btn" data-filter="tech">Tech & Maker</button>
+            <button class="filter-btn" data-filter="networking">Networking</button>
+            <button class="filter-btn" data-filter="kultur">Kultur & Kunst</button>
+        </div>
+
+        <div class="results-header">
+            <span class="results-count" id="resultsCount">12 Events gefunden</span>
+            <span>Ab 02.02.2026</span>
+        </div>
+
+        <div class="event-list" id="eventList"></div>
+    </div>
+
+    <script>
+        const events = [
+            // WANDERN & NATUR
+            {
+                id: 1,
+                title: "Geführte Schneeschuhtour für Einsteiger",
+                date: "2026-02-02",
+                dateDisplay: "02.02.2026",
+                location: "Breitenbergbahn, Pfronten",
+                description: "Kurze Schnupper-Tour durch die verschneite Winterlandschaft mit erfahrenem Bergführer. Perfekt für Einsteiger!",
+                category: "wandern",
+                tags: ["Schneeschuh", "Geführt", "Einsteiger"],
+                image: "https://www.allgaeu.de/images/87zZS4mvT2w/rs:fill:405:/g:ce/dpr:1.5/aHR0cHM6Ly9pbXhwbGF0Zm9ybS1jdXN0LWFsZy5mc24xLnlvdXItb2JqZWN0c3RvcmFnZS5jb20vbWVkaWEvaGluZF9odW5kZXNjaGxpdHRlbjE1XzQ1ODlfYm5ldV8yLmpwZw",
+                url: "https://www.schneeschuhwandern-allgaeu.de/schneeschuh-touren.html",
+                price: "ab 35€"
+            },
+            {
+                id: 2,
+                title: "Schneeschuh Hütten-Abend mit Live-Musik",
+                date: "2026-02-04",
+                dateDisplay: "04.02.2026",
+                location: "Allgäuer Berghütte",
+                description: "Schneeschuhtour mit zünftigem Essen auf einer urigen Berghütte inklusive Live-Musik. Gesellig & gemütlich!",
+                category: "wandern",
+                tags: ["Schneeschuh", "Hütte", "Live-Musik", "Gesellig"],
+                image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400",
+                url: "https://www.schneeschuhwandern-allgaeu.de/",
+                price: "ab 69€"
+            },
+            {
+                id: 3,
+                title: "Eulenexkursion am Rottachberg",
+                date: "2026-02-07",
+                dateDisplay: "07.02.2026",
+                location: "Parkplatz Gästehaus Luitz, Rettenberg",
+                description: "Winterliche Wanderung entlang der alten Salzstraße. Mit LBV-Gebietsbetreuer und Uhu-Spezialist auf Eulensuche.",
+                category: "wandern",
+                tags: ["Naturerlebnis", "Eulen", "Abendwanderung"],
+                image: "images/04_eulenexkursion.jpg",
+                url: "https://www.allgaeu.de/veranstaltungen/lautlose-jaeger-der-nacht-eulenexkursion-am-rottachberg"
+            },
+            {
+                id: 4,
+                title: "Schneeschuhtour Gottesacker Panorama",
+                date: "2026-02-08",
+                dateDisplay: "08.02.2026",
+                location: "Kleinwalsertal",
+                description: "Spektakuläre Karstlandschaft mit beeindruckenden Fernblicken. Eine der beliebtesten Touren der Region.",
+                category: "wandern",
+                tags: ["Schneeschuh", "Panorama", "Geführt"],
+                image: "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=400",
+                url: "https://bergschule.at/dein-winter/schneeschuhwandern",
+                price: "ab 59€"
+            },
+
+            // TECH & MAKER
+            {
+                id: 5,
+                title: "TechConnect: Virtual Job & Networking",
+                date: "2026-02-04",
+                dateDisplay: "04.02.2026",
+                location: "Online (16:00 Uhr)",
+                description: "Virtuelles Netzwerk-Event für Entwickler, AI-Engineers und Tech-Profis. Gruppen-Diskussionen und 1-on-1 Video-Chats.",
+                category: "tech",
+                tags: ["Online", "Networking", "Tech", "AI"],
+                image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400",
+                url: "https://www.meetup.com/find/?location=de--Kempten&source=EVENTS&keywords=tech"
+            },
+            {
+                id: 6,
+                title: "GPU, CUDA & PyTorch Optimizations",
+                date: "2026-02-16",
+                dateDisplay: "16.02.2026",
+                location: "Online (18:00 Uhr)",
+                description: "Technischer Deep-Dive zu GPU-, PyTorch- und CUDA-Performance-Optimierungen mit praktischen Demos.",
+                category: "tech",
+                tags: ["Online", "AI/ML", "Workshop", "Advanced"],
+                image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400",
+                url: "https://www.meetup.com/find/?keywords=pytorch"
+            },
+            {
+                id: 7,
+                title: "Allgäu Digital - Coworking Day",
+                date: "2026-02-05",
+                dateDisplay: "05.02.2026",
+                location: "Allgäu Digital, Kempten",
+                description: "Offener Coworking-Tag im digitalen Gründerzentrum. Netzwerken mit Startups, Gründern und Tech-Enthusiasten.",
+                category: "tech",
+                tags: ["Coworking", "Networking", "Startups"],
+                image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400",
+                url: "https://b2b.allgaeu.de/allgaeudigital"
+            },
+
+            // NETWORKING & COMMUNITY
+            {
+                id: 8,
+                title: "After Work Feierabendparty",
+                date: "2026-02-04",
+                dateDisplay: "04.02.2026",
+                location: "Sonthofen",
+                description: "Entspanntes After-Work-Event zum Connecten und Netzwerken nach Feierabend.",
+                category: "networking",
+                tags: ["After Work", "Party", "Networking"],
+                image: "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=400",
+                url: "https://oberallgaeu.info/veranstaltungskalender"
+            },
+            {
+                id: 9,
+                title: "Oberstdorfer Eiszeit - Magie aus Eis",
+                date: "2026-02-08",
+                dateDisplay: "08.02.2026",
+                location: "Oberstdorf",
+                description: "Spektakuläres Eis-Event mit Eisskulpturen und winterlicher Atmosphäre. Perfekt zum Leute kennenlernen!",
+                category: "kultur",
+                tags: ["Festival", "Kunst", "Outdoor"],
+                image: "https://images.unsplash.com/photo-1516912481808-3406841bd33c?w=400",
+                url: "https://oberallgaeu.info/veranstaltungskalender"
+            },
+
+            // KULTUR
+            {
+                id: 10,
+                title: "GEGEN : SÄTZE FÜR : ZWEI",
+                date: "2026-02-06",
+                dateDisplay: "06.02.2026",
+                location: "Eiskeller am Heimathaus, Pfronten",
+                description: "Kleinkunst-Veranstaltung mit Amelie Koch und Sebastian Strehler im historischen Eiskeller.",
+                category: "kultur",
+                tags: ["Kleinkunst", "Theater", "Musik"],
+                image: "images/03_gegen_saetze.jpg",
+                url: "https://www.allgaeu.de/veranstaltungen/gegen-saetze-fuer-zwei"
+            },
+            {
+                id: 11,
+                title: "Kluftingers Geheimnis - Sonderausstellung",
+                date: "2026-02-02",
+                dateDisplay: "02.02. - 30.04.2026",
+                location: "Deutsches Hutmuseum, Lindenberg",
+                description: "Entdecke das Geheimnis des Heimatkrimis 'Kluftinger'. Interaktive Wanderausstellung.",
+                category: "kultur",
+                tags: ["Ausstellung", "Krimi", "Interaktiv"],
+                image: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=400",
+                url: "https://www.allgaeu.de/veranstaltungen/kluftingers-geheimnis-sonderausstellung-im-deutschen-hutmuseum"
+            },
+            {
+                id: 12,
+                title: "Busausflug zur Wildfütterung",
+                date: "2026-02-03",
+                dateDisplay: "03.02.2026",
+                location: "Nesselwang",
+                description: "Zu Besuch bei Familie Hirsch. Naturerlebnis pur mit Busausflug zur Wildfütterung.",
+                category: "wandern",
+                tags: ["Naturerlebnis", "Familie", "Tiere"],
+                image: "https://images.unsplash.com/photo-1484406566174-9da000fda645?w=400",
+                url: "https://www.allgaeu.de/veranstaltungen/busausflug-zur-wildfuetterung"
+            }
+        ];
+
+        let currentFilter = 'all';
+        let searchTerm = '';
+
+        function renderEvents() {
+            const filtered = events.filter(event => {
+                const matchesFilter = currentFilter === 'all' || event.category === currentFilter;
+                const matchesSearch = searchTerm === '' ||
+                    event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    event.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    event.location.toLowerCase().includes(searchTerm.toLowerCase());
+                return matchesFilter && matchesSearch;
+            });
+
+            document.getElementById('resultsCount').textContent = `${filtered.length} Events gefunden`;
+
+            const html = filtered.length > 0 ? filtered.map(event => `
+                <a href="${event.url}" target="_blank" class="event-card">
+                    <img src="${event.image}" alt="${event.title}" class="event-image" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'">
+                    <div class="event-content">
+                        <span class="event-date">${event.dateDisplay}${event.price ? ' • ' + event.price : ''}</span>
+                        <h3 class="event-title">${event.title}</h3>
+                        <p class="event-location">${event.location}</p>
+                        <p class="event-description">${event.description}</p>
+                        <div class="event-tags">
+                            ${event.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                </a>
+            `).join('') : `
+                <div class="no-results">
+                    <h3>Keine Events gefunden</h3>
+                    <p>Versuche andere Suchbegriffe oder Filter</p>
+                </div>
+            `;
+
+            document.getElementById('eventList').innerHTML = html;
+        }
+
+        function search() {
+            searchTerm = document.getElementById('searchInput').value;
+            renderEvents();
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') search();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderEvents();
+            });
+        });
+
+        // Initial render
+        renderEvents();
+    </script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "source": "https://www.allgaeu.de/veranstaltungen",
+  "scraped_at": "2026-01-29",
+  "events": [
+    {
+      "id": 1,
+      "title": "Fotovortrag: Die verborgenen Schätze des Naturparks",
+      "date": "2026-01-29",
+      "location": "Naturparkzentrum Nagelfluhkette, Immenstadt",
+      "description": "Fotovortrag über die verborgenen Schätze des Naturparks Nagelfluhkette.",
+      "category": "Naturerlebnis",
+      "image": "images/01_fotovortrag_naturpark.jpg",
+      "url": "https://www.allgaeu.de/veranstaltungen"
+    },
+    {
+      "id": 2,
+      "title": "Internationales Schlittenhunderennen",
+      "date": "2026-01-31",
+      "location": "Tennisplatz Unterjoch, Bad Hindelang",
+      "description": "Musher (Schlittenhundeführer) aus verschiedenen Ländern kämpfen mit ihren Schlittenhunden in Unterjoch um den Sieg.",
+      "category": "Sport / Freizeit",
+      "image": "images/02_schlittenhunderennen.jpg",
+      "url": "https://www.allgaeu.de/veranstaltungen/internationales-schlittenhunderennen"
+    },
+    {
+      "id": 3,
+      "title": "GEGEN : SÄTZE FÜR : ZWEI",
+      "date": "2026-02-06",
+      "location": "Eiskeller am Heimathaus, Pfronten",
+      "description": "Kleinkunst-Veranstaltung mit Amelie Koch und Sebastian Strehler im historischen Eiskeller Pfronten.",
+      "category": "Kleinkunst",
+      "image": "images/03_gegen_saetze.jpg",
+      "url": "https://www.allgaeu.de/veranstaltungen/gegen-saetze-fuer-zwei"
+    },
+    {
+      "id": 4,
+      "title": "„Lautlose Jäger der Nacht" – Eulenexkursion am Rottachberg",
+      "date": "2026-02-07",
+      "location": "Parkplatz bei Gästehaus Luitz, Rettenberg",
+      "description": "Winterliche Wanderung entlang der alten Salzstraße am Fuße des Rottachberges mit LBV-Gebietsbetreuer Felix Steinmeyer und Uhu-Spezialist Stephan Immler.",
+      "category": "Naturerlebnis",
+      "image": "images/04_eulenexkursion.jpg",
+      "url": "https://www.allgaeu.de/veranstaltungen/lautlose-jaeger-der-nacht-eulenexkursion-am-rottachberg"
+    }
+  ]
+}
